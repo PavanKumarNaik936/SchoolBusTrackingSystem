@@ -1,0 +1,16 @@
+# IntelliJ
+.idea/
+
+# BSP
+.bsp/
+
+# SBT
+target/
+**/target/
+
+# Metals/Bloop (optional)
+.metals/
+.bloop/
+
+# OS
+.DS_Store
