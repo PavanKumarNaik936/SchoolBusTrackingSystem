@@ -17,7 +17,8 @@ object ErrorMapping {
     case _: AppError.Unauthorized     => Unauthorized
     case _: AppError.BadRequest       => BadRequest
     case _: AppError.Conflict         => Conflict
-    case _: AppError.ValidationFailed => UnprocessableEntity
-    case _: AppError.Internal         => InternalServerError
+    case _: AppError.ValidationFailed   => UnprocessableContent
+    case _: AppError.UnprocessableEntity => UnprocessableContent
+    case _: AppError.Internal          => InternalServerError
   }
 }
