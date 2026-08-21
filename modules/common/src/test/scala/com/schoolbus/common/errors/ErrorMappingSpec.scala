@@ -24,7 +24,11 @@ class ErrorMappingSpec extends AnyWordSpec with Matchers {
     }
 
     "map ValidationFailed to 422" in {
-      ErrorMapping.statusFor(AppError.ValidationFailed(Nil)) shouldBe UnprocessableEntity
+      ErrorMapping.statusFor(AppError.ValidationFailed(Nil)) shouldBe UnprocessableContent
+    }
+
+    "map UnprocessableEntity to 422" in {
+      ErrorMapping.statusFor(AppError.UnprocessableEntity("ROUTE_SCHOOL_MISMATCH", "wrong school")) shouldBe UnprocessableContent
     }
 
     "map Internal to 500" in {

@@ -43,6 +43,14 @@ object AppError {
   final case class ValidationFailed(fieldErrors: List[FieldError])
       extends AppError("VALIDATION_FAILED", "One or more fields are invalid")
 
+  /** Also a 422, like ValidationFailed, but for a single named business
+    * rule (e.g. ROUTE_SCHOOL_MISMATCH) rather than a list of per-field
+    * errors. Kept generic like Conflict/BadRequest, since new rule codes
+    * will keep showing up as modules get built.
+    */
+  final case class UnprocessableEntity(errorCode: String, reason: String)
+      extends AppError(errorCode, reason)
+
   final case class Internal(reason: String)
       extends AppError("INTERNAL_ERROR", reason)
 }

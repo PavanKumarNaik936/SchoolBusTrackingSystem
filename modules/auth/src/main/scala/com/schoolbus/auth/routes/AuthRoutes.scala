@@ -30,7 +30,7 @@ class AuthRoutes(authService: AuthService)(implicit ec: ExecutionContext) {
             entity(as[LoginRequest]) { req =>
               validateLogin(req) match {
                 case Left(fieldErrors) =>
-                  complete(StatusCodes.UnprocessableEntity -> (AppError.ValidationFailed(fieldErrors): AppError).asJson)
+                  complete(StatusCodes.UnprocessableContent -> (AppError.ValidationFailed(fieldErrors): AppError).asJson)
                 case Right(_) =>
                   onSuccess(authService.login(req.email, req.password)) {
                     respond(_)
@@ -63,7 +63,7 @@ class AuthRoutes(authService: AuthService)(implicit ec: ExecutionContext) {
             entity(as[PasswordResetRequest]) { req =>
               validatePasswordResetRequest(req) match {
                 case Left(fieldErrors) =>
-                  complete(StatusCodes.UnprocessableEntity -> (AppError.ValidationFailed(fieldErrors): AppError).asJson)
+                  complete(StatusCodes.UnprocessableContent -> (AppError.ValidationFailed(fieldErrors): AppError).asJson)
                 case Right(_) =>
                   // Same response no matter what happened server-side - that's
                   // the whole point, see AuthService.requestPasswordReset.
@@ -82,7 +82,7 @@ class AuthRoutes(authService: AuthService)(implicit ec: ExecutionContext) {
             entity(as[PasswordResetConfirmRequest]) { req =>
               validatePasswordResetConfirm(req) match {
                 case Left(fieldErrors) =>
-                  complete(StatusCodes.UnprocessableEntity -> (AppError.ValidationFailed(fieldErrors): AppError).asJson)
+                  complete(StatusCodes.UnprocessableContent -> (AppError.ValidationFailed(fieldErrors): AppError).asJson)
                 case Right(_) =>
                   onSuccess(authService.confirmPasswordReset(req.token, req.newPassword)) {
                     case Right(_)  => complete(StatusCodes.OK)
