@@ -39,6 +39,10 @@ object Dependencies {
   // of which now come from `common`.
   val students: Seq[ModuleID] = common
 
+  // buses' routes layer needs circe + akka-http-circe too, both of which
+  // already come from `common` - same as students.
+  val buses: Seq[ModuleID] = common
+
   // app is the composition root: everything from the four feature modules
   // already arrives transitively via .dependsOn in build.sbt, so this only
   // lists what's genuinely new here - running migrations and standing up an

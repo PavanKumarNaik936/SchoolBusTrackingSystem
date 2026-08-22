@@ -114,6 +114,30 @@ class AppIntegrationSpec extends AnyWordSpec with Matchers with ScalaFutures wit
         status shouldBe StatusCodes.Forbidden
       }
     }
+
+    "let a school admin log in, create a bus in their own school, and read it back" in {
+      val tokenA = login("admin-a@schoolbus.test", adminPassword)
+
+      val busId = createBus(schoolAId, tokenA, plateNumber = "BUS-A-1", capacity = 42)
+
+      Get(s"/api/v1/buses/$busId") ~> withToken(tokenA) ~> routes ~> check {
+        status shouldBe StatusCodes.OK
+        val body = parse(responseAs[String]).getOrElse(fail("response was not valid JSON"))
+        body.hcursor.get[String]("plateNumber") shouldBe Right("BUS-A-1")
+        body.hcursor.get[Int]("capacity") shouldBe Right(42)
+      }
+    }
+
+    "reject a different school's admin trying to read a bus that isn't theirs, with 404 not found in their own tenant scope" in {
+      val tokenA = login("admin-a@schoolbus.test", adminPassword)
+      val busId = createBus(schoolAId, tokenA, plateNumber = "BUS-A-2", capacity = 30)
+
+      val tokenB = login("admin-b@schoolbus.test", adminPassword)
+
+      Get(s"/api/v1/buses/$busId") ~> withToken(tokenB) ~> routes ~> check {
+        status shouldBe StatusCodes.NotFound
+      }
+    }
   }
 
   private def newSchool(name: String): School = {
@@ -160,6 +184,19 @@ class AppIntegrationSpec extends AnyWordSpec with Matchers with ScalaFutures wit
       status shouldBe StatusCodes.Created
       val json = parse(responseAs[String]).getOrElse(fail("create-student response was not valid JSON"))
       val idStr = json.hcursor.get[String]("id").getOrElse(fail("no id in create-student response"))
+      UUID.fromString(idStr)
+    }
+  }
+
+  private def createBus(schoolId: UUID, token: String, plateNumber: String, capacity: Int): UUID = {
+    val body = HttpEntity(
+      ContentTypes.`application/json`,
+      s"""{"plateNumber":"$plateNumber","capacity":$capacity}"""
+    )
+    Post(s"/api/v1/schools/$schoolId/buses", body) ~> withToken(token) ~> routes ~> check {
+      status shouldBe StatusCodes.Created
+      val json = parse(responseAs[String]).getOrElse(fail("create-bus response was not valid JSON"))
+      val idStr = json.hcursor.get[String]("id").getOrElse(fail("no id in create-bus response"))
       UUID.fromString(idStr)
     }
   }

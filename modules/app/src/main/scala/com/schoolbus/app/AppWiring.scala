@@ -6,6 +6,9 @@ import com.schoolbus.auth.client.{AuthUserClient, JwtTokenAuthenticator}
 import com.schoolbus.auth.repository.{SlickPasswordResetTokenRepository, SlickRefreshTokenRepository, SlickUserRepository}
 import com.schoolbus.auth.routes.AuthRoutes
 import com.schoolbus.auth.service.{AuthService, JwtService, NoOpEmailService, PasswordHasher}
+import com.schoolbus.buses.repository.SlickBusRepository
+import com.schoolbus.buses.routes.BusRoutes
+import com.schoolbus.buses.service.BusService
 import com.schoolbus.common.auth.TokenAuthenticator
 import com.schoolbus.schools.repository.{SchoolRepository, SlickRouteRepository, SlickSchoolRepository}
 import com.schoolbus.students.repository.{SlickStudentParentRepository, SlickStudentRepository}
@@ -78,11 +81,16 @@ object AppWiring {
       userClient
     )
 
+    // buses
+    val busRepository = new SlickBusRepository(db)
+    val busService     = new BusService(busRepository)
+
     val authRoutes    = new AuthRoutes(authService)
     val studentRoutes = new StudentRoutes(studentService, tokenAuthenticator)
+    val busRoutes     = new BusRoutes(busService, tokenAuthenticator)
 
     AppComponents(
-      routes = concat(authRoutes.routes, studentRoutes.routes),
+      routes = concat(authRoutes.routes, studentRoutes.routes, busRoutes.routes),
       schoolRepository = schoolRepository
     )
   }
